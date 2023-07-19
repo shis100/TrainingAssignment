@@ -1,0 +1,149 @@
+----------------------------------------------
+1 . Deploy Voting app yaml file
+----------------------------------------------
+[root@ip-172-31-46-244 k8s-specifications]# kubectl apply -f .
+deployment.apps/db created
+service/db created
+deployment.apps/redis created
+service/redis created
+deployment.apps/result created
+service/result created
+deployment.apps/vote created
+service/vote created
+deployment.apps/worker created
+[root@ip-172-31-46-244 k8s-specifications]# 
+[root@ip-172-31-46-244 k8s-specifications]# 
+
+-------------------------------
+2. Display all pods
+-------------------------------
+[root@ip-172-31-46-244 k8s-specifications]# kubectl get po -o wide
+NAME                      READY   STATUS    RESTARTS   AGE     IP               NODE                                             NOMINATED NODE   READINESS GATES
+db-b54cd94f4-lw9nd        1/1     Running   0          3m16s   192.168.85.98    ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+redis-868d64d78-b6r9f     1/1     Running   0          3m16s   192.168.85.100   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+result-5d57b59f4b-l4lrj   1/1     Running   0          3m16s   192.168.85.99    ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+vote-94849dc97-nbnbh      1/1     Running   0          3m16s   192.168.85.101   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+worker-dd46d7584-x466n    1/1     Running   0          3m16s   192.168.85.102   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+[root@ip-172-31-46-244 k8s-specifications]# 
+
+---------------------------
+3. Display services
+---------------------------
+[root@ip-172-31-46-244 k8s-specifications]# kubectl get svc
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+db           ClusterIP   10.102.255.150   <none>        5432/TCP         6m8s
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP          79m
+redis        ClusterIP   10.105.168.255   <none>        6379/TCP         6m8s
+result       NodePort    10.100.142.120   <none>        5001:31001/TCP   6m8s
+vote         NodePort    10.110.239.34    <none>        5000:31000/TCP   6m8s
+[root@ip-172-31-46-244 k8s-specifications]# 
+
+---------------------------
+4. Worker Pod logs
+----------------------------
+[root@ip-172-31-46-244 k8s-specifications]# kubectl logs worker-dd46d7584-x466n
+Connected to db
+Found redis at 10.105.168.255
+Connecting to redis
+Processing vote for 'b' by 'bb57da2194bfdb6'
+Processing vote for 'b' by 'bb57da2194bfdb6'
+Processing vote for 'a' by 'bb57da2194bfdb6'
+Processing vote for 'a' by 'bb57da2194bfdb6'
+Processing vote for 'b' by 'bb57da2194bfdb6'
+Processing vote for 'b' by 'bb57da2194bfdb6'
+Processing vote for 'b' by 'e80b894ac8cd687'
+[root@ip-172-31-46-244 k8s-specifications]# 
+
+--------------------
+5  . VOTE POD deleted
+===============
+[root@ip-172-31-46-244 ec2-user]# kubectl delete po vote-94849dc97-nbnbh
+pod "vote-94849dc97-nbnbh" deleted
+[root@ip-172-31-46-244 ec2-user]# 
+[root@ip-172-31-46-244 ec2-user]# kubectl get po -o wide
+NAME                      READY   STATUS    RESTARTS   AGE   IP               NODE                                             NOMINATED NODE   READINESS GATES
+db-b54cd94f4-lw9nd        1/1     Running   0          24h   192.168.85.98    ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+redis-868d64d78-b6r9f     1/1     Running   0          24h   192.168.85.100   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+result-5d57b59f4b-l4lrj   1/1     Running   0          24h   192.168.85.99    ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+vote-94849dc97-dgkm6      1/1     Running   0          29s   192.168.85.110   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+worker-dd46d7584-x466n    1/1     Running   0          24h   192.168.85.102   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+[root@ip-172-31-46-244 ec2-user]# 
+
+Vote pod "vote-94849dc97-nbnbh" deleted. New Vote pod got created "vote-94849dc97-dgkm6 " 
+No change in result page or other pods.
+
+------------------------
+
+6 . WORKER POD Deleted.
+===================
+[root@ip-172-31-46-244 ec2-user]# kubectl delete po worker-dd46d7584-x466n
+pod "worker-dd46d7584-x466n" deleted
+[root@ip-172-31-46-244 ec2-user]# 
+[root@ip-172-31-46-244 ec2-user]# kubectl get po -o wide
+NAME                      READY   STATUS    RESTARTS   AGE     IP               NODE                                             NOMINATED NODE   READINESS GATES
+db-b54cd94f4-lw9nd        1/1     Running   0          24h     192.168.85.98    ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+redis-868d64d78-b6r9f     1/1     Running   0          24h     192.168.85.100   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+result-5d57b59f4b-l4lrj   1/1     Running   0          24h     192.168.85.99    ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+vote-94849dc97-dgkm6      1/1     Running   0          4m22s   192.168.85.110   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+worker-dd46d7584-s86kn    1/1     Running   0          23s     192.168.85.111   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+[root@ip-172-31-46-244 ec2-user]# 
+
+When worker pod "worker-dd46d7584-x466n" deleted, new worker pod gets created "worker-dd46d7584-s86kn" .
+No impact to Vote or Result pod. No change in vote or result page.
+
+===============
+7 . DB POD deleted.
+================
+[root@ip-172-31-46-244 ec2-user]# kubectl delete po db-b54cd94f4-lw9nd
+pod "db-b54cd94f4-lw9nd" deleted
+[root@ip-172-31-46-244 ec2-user]# kubectl get po -o wide
+NAME                      READY   STATUS    RESTARTS   AGE     IP               NODE                                             NOMINATED NODE   READINESS GATES
+db-b54cd94f4-pd4ps        1/1     Running   0          41s     192.168.85.112   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+redis-868d64d78-b6r9f     1/1     Running   0          29h     192.168.85.100   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+result-5d57b59f4b-l4lrj   1/1     Running   1          29h     192.168.85.99    ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+vote-94849dc97-dgkm6      1/1     Running   0          5h17m   192.168.85.110   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+worker-dd46d7584-s86kn    1/1     Running   1          5h14m   192.168.85.111   ip-172-31-45-5.ap-southeast-1.compute.internal   <none>           <none>
+[root@ip-172-31-46-244 ec2-user]# 
+[root@ip-172-31-46-244 ec2-user]# 
+
+New DB pod gets created when current db pod is deleted.
+Result page shows loss of vote data. it gets reset to initial value. 
+Result Pod and Worker Pod gets restarted and works fine.
+
+---------------------------------------------------------------
+WHY result app STOPPED working after db pod stop
+ Ans: -  As DB pod got deleted, there is no data to display in Result POD . Also DB connections get terminated when DB Pod got deleted. 
+              So Result Pod will restart itself to reconnect to DB pod and also to recover with dependencies.
+---------------------------------------------------------------
+
+4. HOW YOU MADE THE RESULT POD work.
+ANs:- Result POD & Worker POD gets restarted by itself and started working. However earlier data got lost.
+-----------------------------------------------------------------------------------------------------------------
+
+5. Some jargons (just names are enough- dont need sentences) that you learnt from the  Training session
+     Kubectl , calico , dikastes , swarm etc
+
+----------------------------
+DB pod logs
+---------------------
+ERROR:  relation "votes" does not exist at character 38
+STATEMENT:  SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote
+ERROR:  relation "votes" does not exist at character 38
+STATEMENT:  SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote
+ERROR:  relation "votes" does not exist at character 38
+STATEMENT:  SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote
+ERROR:  duplicate key value violates unique constraint "votes_id_key"
+DETAIL:  Key (id)=(e442e70a8496b5d) already exists.
+STATEMENT:  INSERT INTO votes (id, vote) VALUES ($1, $2)
+[root@ip-172-31-46-244 ec2-user]# 
+
+--------------------------------
+Worker Pod logs
+------------------------------
+[root@ip-172-31-46-244 ec2-user]# kubectl logs worker-dd46d7584-s86kn
+Connected to db
+Found redis at 10.105.168.255
+Connecting to redis
+Processing vote for 'a' by 'e442e70a8496b5d'
+Processing vote for 'b' by 'e442e70a8496b5d'
+[root@ip-172-31-46-244 ec2-user]# 
