@@ -1,0 +1,10 @@
+You have deployed an application, that is listening at port 8000.
+You used a replica-set to deploy it and created a NodePort service to make it accessible. 
+But when you test it, somehow the application is not reachable at the port.
+Write down your approach and sequentially all the steps that you will take to find out the issue.
+
+need to check nodeport using "kubectl get svc".
+Then in the browser enter <ip-address of node:nodeport> to access it.
+Even then if application is not reachable , then delete pod using "kubectl delete po <podname>"
+New Pod will be created as it is a replicaset.
+Now access it in the browser enter <ip-address of node:nodeport> 
