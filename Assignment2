@@ -1,0 +1,7 @@
+Suppose you have deployed your application using a deployment controller. 
+Assume the initial number of replicas is one. Write the steps needed to update a container's image using deployment, making sure that there is zero downtime.
+
+We have installed kubia using deployment controller with image as luksa/kubia:v1 .
+we can use below command to update the image of deplyment with zero downtime
+
+kubectl set image deployment kubia nodejs=luksa/kubia:v2
