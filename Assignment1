@@ -1,0 +1,4 @@
+Write a common use-case, where you will use a daemon set instead of replica set.
+
+1. Daemon set will be used to monitor all nodes of a cluster .
+2. It will be used for Logs collections from all nodes .
